@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Attendance Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #1e1e2d;
+            --primary-accent: #5856d6;
+            --bg-light: #f4f5f8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+        }
+        .brand-panel {
+            background: linear-gradient(150deg, var(--sidebar-bg) 0%, #14141f 100%);
+        }
+        .brand-glow {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(88, 86, 214, 0.18);
+        }
+        .feature-icon {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(88, 86, 214, 0.18);
+            color: #9b99ec;
+            border-radius: 10px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+        .auth-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(30, 30, 45, 0.08);
+            padding: 2.25rem;
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+        }
+        .auth-card .form-control {
+            border-radius: 8px;
+            padding: 10px 14px;
+            border-color: #dfe3ec;
+        }
+        .auth-card .form-control:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 0.2rem rgba(88, 86, 214, 0.15);
+        }
+        .btn-brand {
+            background-color: var(--primary-accent);
+            border-color: var(--primary-accent);
+        }
+        .btn-brand:hover, .btn-brand:active, .btn-brand:focus {
+            background-color: #4644b8;
+            border-color: #4644b8;
+        }
+        .btn-brand:disabled {
+            background-color: #7b79e6;
+            border-color: #7b79e6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
+        <!-- Branding Panel -->
+        <div class="col-lg-6 d-none d-lg-flex align-items-center brand-panel position-relative p-5">
+            <div class="brand-glow" style="width: 340px; height: 340px; top: -100px; right: -100px;"></div>
+            <div class="brand-glow" style="width: 220px; height: 220px; bottom: -70px; left: -70px;"></div>
+            <div class="position-relative">
+                <div class="d-flex align-items-center mb-5">
+                    <i class="fa-solid fa-graduation-cap text-primary fs-1 me-3"></i>
+                    <span class="text-white fs-4 fw-bold">Attendance Hub</span>
+                </div>
+                <h1 class="text-white fw-bold mb-4" style="font-size: 2.5rem; line-height: 1.25;">
+                    Smart Attendance<br>Management System
+                </h1>
+                <p class="mb-5" style="color: #a2a3b7; font-size: 1.05rem; max-width: 460px;">
+                    Track student attendance in real time, generate detailed reports and get instant shortage alerts — all in one place.
+                </p>
+                <div class="d-flex flex-column gap-4">
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-calendar-check fs-5"></i></span>
+                        <span>Mark daily attendance in seconds</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-chart-pie fs-5"></i></span>
+                        <span>Live analytics &amp; department breakdown</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-triangle-exclamation fs-5"></i></span>
+                        <span>Automatic shortage alerts below 75%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-lg-5">
+            <div class="auth-card">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 62px; height: 62px; background: rgba(88,86,214,0.1);">
+                        <i class="fa-solid fa-right-to-bracket fs-4" style="color: var(--primary-accent);"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" style="color: var(--sidebar-bg);">Welcome Back</h3>
+                    <p class="text-muted mb-0">Sign in to continue to Attendance Hub</p>
+                </div>
+
+                <div id="login-error" class="alert alert-danger py-2 d-none" role="alert"></div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+                    <div class="mb-3">
+                        <label for="login-email" class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control" id="login-email" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="login-password" class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control" id="login-password" placeholder="Enter your password" autocomplete="current-password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-login-password" title="Show / hide password">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" id="login-submit" class="btn btn-brand btn-lg w-100 fw-bold py-2.5">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="text-muted mb-0">New to Attendance Hub?
+                        <a href="/register" class="fw-semibold text-decoration-none">Create an account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const loginError = document.getElementById('login-error');
+
+    function showLoginError(msg) {
+        loginError.textContent = msg;
+        loginError.classList.remove('d-none');
+    }
+
+    function hideLoginError() {
+        loginError.classList.add('d-none');
+    }
+
+    function resetSubmitButton() {
+        const btn = document.getElementById('login-submit');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket me-2"></i>Sign In';
+    }
+
+    document.getElementById('toggle-login-password').addEventListener('click', function () {
+        const input = document.getElementById('login-password');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        hideLoginError();
+
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const submitBtn = document.getElementById('login-submit');
+
+        if (!email || !password) {
+            showLoginError('Please enter both email and password.');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                showLoginError(data.error || 'Login failed. Please try again.');
+                resetSubmitButton();
+            }
+        } catch (err) {
+            showLoginError('Unable to connect to the server. Please try again.');
+            resetSubmitButton();
+        }
+    }
+</script>
+</body>
+</html>

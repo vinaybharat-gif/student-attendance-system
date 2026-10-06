@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Attendance Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-bg: #1e1e2d;
+            --primary-accent: #5856d6;
+            --bg-light: #f4f5f8;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+        }
+        .brand-panel {
+            background: linear-gradient(150deg, var(--sidebar-bg) 0%, #14141f 100%);
+        }
+        .brand-glow {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(88, 86, 214, 0.18);
+        }
+        .feature-icon {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(88, 86, 214, 0.18);
+            color: #9b99ec;
+            border-radius: 10px;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+        .auth-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(30, 30, 45, 0.08);
+            padding: 2rem;
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+        }
+        .auth-card .form-control,
+        .auth-card .form-select {
+            border-radius: 8px;
+            padding: 10px 14px;
+            border-color: #dfe3ec;
+        }
+        .auth-card .form-control:focus,
+        .auth-card .form-select:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 0.2rem rgba(88, 86, 214, 0.15);
+        }
+        .btn-brand {
+            background-color: var(--primary-accent);
+            border-color: var(--primary-accent);
+        }
+        .btn-brand:hover, .btn-brand:active, .btn-brand:focus {
+            background-color: #4644b8;
+            border-color: #4644b8;
+        }
+        .btn-brand:disabled {
+            background-color: #7b79e6;
+            border-color: #7b79e6;
+        }
+        .role-option {
+            border-width: 2px;
+            border-radius: 12px;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .role-option i {
+            color: var(--primary-accent);
+            transition: color 0.15s ease;
+        }
+        .role-option:hover {
+            border-color: var(--primary-accent);
+        }
+        .btn-check:checked + .role-option {
+            border-color: var(--primary-accent);
+        }
+        .btn-check:checked + .role-option i {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row g-0 min-vh-100">
+        <!-- Branding Panel -->
+        <div class="col-lg-6 d-none d-lg-flex align-items-center brand-panel position-relative p-5">
+            <div class="brand-glow" style="width: 340px; height: 340px; top: -100px; right: -100px;"></div>
+            <div class="brand-glow" style="width: 220px; height: 220px; bottom: -70px; left: -70px;"></div>
+            <div class="position-relative">
+                <div class="d-flex align-items-center mb-5">
+                    <i class="fa-solid fa-graduation-cap text-primary fs-1 me-3"></i>
+                    <span class="text-white fs-4 fw-bold">Attendance Hub</span>
+                </div>
+                <h1 class="text-white fw-bold mb-4" style="font-size: 2.5rem; line-height: 1.25;">
+                    Join Attendance<br>Hub Today
+                </h1>
+                <p class="mb-5" style="color: #a2a3b7; font-size: 1.05rem; max-width: 460px;">
+                    Create a free account as a Student or Teacher and take control of classroom attendance.
+                </p>
+                <div class="d-flex flex-column gap-4">
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-user-graduate fs-5"></i></span>
+                        <span>Students register with their roll number</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-chalkboard-user fs-5"></i></span>
+                        <span>Teachers mark and manage attendance</span>
+                    </div>
+                    <div class="d-flex align-items-center" style="color: #c6c7d6;">
+                        <span class="feature-icon"><i class="fa-solid fa-shield-halved fs-5"></i></span>
+                        <span>Secure, role-based accounts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 p-lg-5">
+            <div class="auth-card">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 62px; height: 62px; background: rgba(88,86,214,0.1);">
+                        <i class="fa-solid fa-user-plus fs-4" style="color: var(--primary-accent);"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" style="color: var(--sidebar-bg);">Create Account</h3>
+                    <p class="text-muted mb-0">Register as a Student or a Teacher</p>
+                </div>
+
+                <div id="reg-error" class="alert alert-danger py-2 d-none" role="alert"></div>
+                <div id="reg-success" class="alert alert-success py-2 d-none" role="alert"></div>
+
+                <form id="registerForm" onsubmit="handleRegister(event)" novalidate>
+                    <div class="mb-3">
+                        <label for="reg-username" class="form-label fw-semibold">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-user text-muted"></i></span>
+                            <input type="text" class="form-control" id="reg-username" placeholder="e.g. Rahul Sharma" autocomplete="name" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reg-email" class="form-label fw-semibold">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control" id="reg-email" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+
+                    <!-- ROLE SELECTION: Student / Teacher -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Register As</label>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="role" id="roleStudent" value="Student" checked>
+                                <label class="btn btn-outline-primary role-option w-100 d-flex flex-column align-items-center py-3" for="roleStudent">
+                                    <i class="fa-solid fa-user-graduate fs-3 mb-2"></i>
+                                    <span class="fw-semibold">Student</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="role" id="roleTeacher" value="Teacher">
+                                <label class="btn btn-outline-primary role-option w-100 d-flex flex-column align-items-center py-3" for="roleTeacher">
+                                    <i class="fa-solid fa-chalkboard-user fs-3 mb-2"></i>
+                                    <span class="fw-semibold">Teacher</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student-only fields -->
+                    <div id="studentFields">
+                        <div class="mb-3">
+                            <label for="reg-roll" class="form-label fw-semibold">Roll Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="fa-solid fa-id-card text-muted"></i></span>
+                                <input type="text" class="form-control" id="reg-roll" placeholder="e.g. 21CSE03" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reg-dept-student" class="form-label fw-semibold">Department</label>
+                            <select id="reg-dept-student" class="form-select">
+                                <option value="CSE">CSE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="MECH">MECH</option>
+                                <option value="CIVIL">CIVIL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Teacher-only fields -->
+                    <div id="teacherFields" class="d-none">
+                        <div class="mb-3">
+                            <label for="reg-dept-teacher" class="form-label fw-semibold">Department</label>
+                            <select id="reg-dept-teacher" class="form-select">
+                                <option value="CSE">CSE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="MECH">MECH</option>
+                                <option value="CIVIL">CIVIL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reg-password" class="form-label fw-semibold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control" id="reg-password" placeholder="At least 6 characters" autocomplete="new-password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-reg-password" title="Show / hide password">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Must be at least 6 characters long.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="reg-confirm" class="form-label fw-semibold">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fa-solid fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control" id="reg-confirm" placeholder="Re-enter your password" autocomplete="new-password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-reg-confirm" title="Show / hide password">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="reg-submit" class="btn btn-brand btn-lg w-100 fw-bold py-2.5">
+                        <i class="fa-solid fa-user-plus me-2"></i>Create Account
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="text-muted mb-0">Already have an account?
+                        <a href="/login" class="fw-semibold text-decoration-none">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const regError = document.getElementById('reg-error');
+    const regSuccess = document.getElementById('reg-success');
+
+    function showRegError(msg) {
+        regError.textContent = msg;
+        regError.classList.remove('d-none');
+        regSuccess.classList.add('d-none');
+    }
+
+    function hideRegMessages() {
+        regError.classList.add('d-none');
+        regSuccess.classList.add('d-none');
+    }
+
+    function resetSubmitButton() {
+        const btn = document.getElementById('reg-submit');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Create Account';
+    }
+
+    function updateRoleFields() {
+        const isStudent = document.getElementById('roleStudent').checked;
+        document.getElementById('studentFields').classList.toggle('d-none', !isStudent);
+        document.getElementById('teacherFields').classList.toggle('d-none', isStudent);
+    }
+
+    document.querySelectorAll('input[name="role"]').forEach(function (radio) {
+        radio.addEventListener('change', updateRoleFields);
+    });
+    updateRoleFields();
+
+    function setupPasswordToggle(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        btn.addEventListener('click', function () {
+            const icon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+    setupPasswordToggle('toggle-reg-password', 'reg-password');
+    setupPasswordToggle('toggle-reg-confirm', 'reg-confirm');
+
+    async function handleRegister(event) {
+        event.preventDefault();
+        hideRegMessages();
+
+        const username = document.getElementById('reg-username').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const confirmPassword = document.getElementById('reg-confirm').value;
+        const role = document.querySelector('input[name="role"]:checked').value;
+        const rollNo = document.getElementById('reg-roll').value.trim();
+        const department = (role === 'Student'
+            ? document.getElementById('reg-dept-student')
+            : document.getElementById('reg-dept-teacher')).value;
+
+        if (!username || !email || !password) {
+            showRegError('Please fill in all required fields.');
+            return;
+        }
+        if (role === 'Student' && !rollNo) {
+            showRegError('Roll number is required for Student accounts.');
+            return;
+        }
+        if (password.length < 6) {
+            showRegError('Password must be at least 6 characters long.');
+            return;
+        }
+        if (password !== confirmPassword) {
+            showRegError('Passwords do not match.');
+            return;
+        }
+
+        const submitBtn = document.getElementById('reg-submit');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating account...';
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password, role, roll_no: rollNo, department })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                regSuccess.textContent = (data.message || 'Registration successful!') + ' Redirecting to login...';
+                regSuccess.classList.remove('d-none');
+                document.getElementById('registerForm').reset();
+                updateRoleFields();
+                setTimeout(function () { window.location.href = '/login'; }, 1500);
+            } else {
+                showRegError(data.error || 'Registration failed. Please try again.');
+                resetSubmitButton();
+            }
+        } catch (err) {
+            showRegError('Unable to connect to the server. Please try again.');
+            resetSubmitButton();
+        }
+    }
+</script>
+</body>
+</html>

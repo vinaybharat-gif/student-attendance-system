@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Hub - Student Attendance Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sidebar-bg: #1e1e2d;
+            --sidebar-hover: #2b2b40;
+            --primary-accent: #5856d6;
+            --bg-light: #f4f5f8;
+        }
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: #a2a3b7;
+        }
+        .brand-header {
+            color: #ffffff;
+            font-size: 1.35rem;
+            font-weight: 700;
+            padding: 22px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .sidebar .nav-link {
+            color: #a2a3b7;
+            font-size: 0.98rem;
+            padding: 14px 22px;
+            border-radius: 8px;
+            margin: 4px 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .sidebar .nav-link:hover {
+            color: #ffffff;
+            background-color: var(--sidebar-hover);
+        }
+        .sidebar .nav-link.active {
+            color: #ffffff;
+            background-color: var(--primary-accent);
+            font-weight: 600;
+        }
+        .main-content {
+            padding: 30px;
+        }
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            background: #ffffff;
+        }
+        
+        .dept-badge {
+            background-color: #f1f3f9;
+            color: #495057;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+        }
+        .btn-status-group .btn {
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 5px 12px;
+        }
+        .btn-status-present.active {
+            background-color: #198754 !important;
+            color: white !important;
+            border-color: #198754 !important;
+        }
+        .btn-status-absent.active {
+            background-color: #dc3545 !important;
+            color: white !important;
+            border-color: #dc3545 !important;
+        }
+        .chart-container {
+            position: relative;
+            height: 260px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar">
+            <div class="brand-header d-flex align-items-center">
+                <i class="fa-solid fa-graduation-cap text-primary fs-3 me-2"></i>
+                <span>Attendance Hub</span>
+            </div>
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" onclick="showTab('dashboard', this)">
+                        <i class="fa-solid fa-pie-chart me-3"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('students', this)">
+                        <i class="fa-solid fa-user-graduate me-3"></i> Students
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('mark-attendance', this)">
+                        <i class="fa-solid fa-calendar-check me-3"></i> Mark Attendance
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('reports', this)">
+                        <i class="fa-solid fa-file-lines me-3"></i> Reports & Analytics
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="col-md-10 main-content">
+            
+            <!-- Header Row -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-dark mb-0" id="section-heading">Dashboard Overview</h2>
+                <div class="d-flex align-items-center flex-wrap">
+                    <span class="badge rounded-pill me-2 px-3 py-2" style="background-color: var(--primary-accent);">{{ user.get('role', 'User') }}</span>
+                    <span class="fw-semibold text-dark me-3"><i class="fa-solid fa-circle-user me-1 text-muted"></i>{{ user.get('username', '') }}</span>
+                    <button class="btn btn-light fw-semibold me-2 border" onclick="logoutUser()">
+                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                    </button>
+                    <button class="btn btn-primary fw-semibold me-2" data-bs-toggle="modal" data-bs-target="#architectureModal">
+                        <i class="fa-brands fa-python me-1"></i> Python Flask & SQLite Backend Architecture Ready
+                    </button>
+                    <button class="btn btn-outline-danger fw-semibold" onclick="location.reload()">
+                        <i class="fa-solid fa-rotate-left me-1"></i> Reset Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- DASHBOARD TAB -->
+            <div id="tab-dashboard" class="tab-page">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-start border-4 border-primary">
+                            <span class="text-muted fw-bold">Total Students</span>
+                            <h2 class="fw-bold text-primary mt-2" id="stat-total">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-start border-4 border-success">
+                            <span class="text-muted fw-bold">Overall Average Attendance</span>
+                            <h2 class="fw-bold text-success mt-2" id="stat-avg">0%</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-start border-4 border-danger">
+                            <span class="text-muted fw-bold">Shortage Alerts (&lt;75%)</span>
+                            <h2 class="fw-bold text-danger mt-2" id="stat-low">0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold text-dark mb-3">Overall Attendance Ratio</h5>
+                            <div class="chart-container">
+                                <canvas id="doughnutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-custom p-4">
+                            <h5 class="fw-bold text-dark mb-3">Department-wise Breakdown</h5>
+                            <div class="chart-container">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-custom p-4">
+                    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i> Attendance Shortage Warning Alerts (&lt;75%)</h5>
+                    <div id="dashboard-alert-list" class="list-group"></div>
+                </div>
+            </div>
+
+            <!-- MARK ATTENDANCE TAB -->
+            <div id="tab-mark-attendance" class="tab-page d-none">
+                <div class="card card-custom p-4 mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-semibold mb-1">Select Date</label>
+                            <input type="date" id="att-date" class="form-control form-control-lg" value="2026-10-06">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted fw-semibold mb-1">Select Subject / Class</label>
+                            <select id="att-subject" class="form-select form-select-lg">
+                                <option value="Python Programming">Python Programming</option>
+                                <option value="Software Engineering">Software Engineering</option>
+                                <option value="Database Systems">Database Systems</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex justify-content-end align-items-end pt-3">
+                            <button class="btn btn-outline-success fw-bold px-4 py-2 me-2" onclick="bulkSetStatus('Present')">
+                                <i class="fa-solid fa-check me-1"></i> All Present
+                            </button>
+                            <button class="btn btn-outline-danger fw-bold px-4 py-2" onclick="bulkSetStatus('Absent')">
+                                <i class="fa-solid fa-xmark me-1"></i> All Absent
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-id-card text-primary me-2"></i> Attendance Sheet</h5>
+                        <small class="text-muted">Click toggle buttons to change student status</small>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr class="text-secondary">
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                    <th>Department</th>
+                                    <th>Current Overall %</th>
+                                    <th class="text-start">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-sheet-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-success btn-lg fw-bold px-4" onclick="saveAttendance()">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save Today's Attendance
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STUDENTS TAB -->
+            <div id="tab-students" class="tab-page d-none">
+                <div class="card card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold">Student Directory</h5>
+                        <button class="btn btn-primary fw-semibold" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                            <i class="fa-solid fa-plus me-1"></i> Add Student
+                        </button>
+                    </div>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REPORTS TAB -->
+            <div id="tab-reports" class="tab-page d-none">
+                <div class="card card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold">Attendance Analytics & Shortage Reports</h5>
+                        <a href="/api/reports/export" class="btn btn-success"><i class="fa-solid fa-file-csv me-1"></i> Export CSV Report</a>
+                    </div>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Classes Attended</th>
+                                <th>Percentage</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal fade" id="addStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-plus me-2 text-primary"></i> Add New Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm" onsubmit="submitNewStudent(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Roll Number</label>
+                        <input type="text" id="new-roll" class="form-control" placeholder="e.g. 21CSE03" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Full Name</label>
+                        <input type="text" id="new-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Department</label>
+                        <select id="new-dept" class="form-select" required>
+                            <option value="CSE">CSE</option>
+                            <option value="ECE">ECE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="MECH">MECH</option>
+                            <option value="CIVIL">CIVIL</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" id="new-email" class="form-control" placeholder="e.g. rahul@example.com" required>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 pt-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary fw-bold">Save Student</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Architecture Info Modal -->
+<div class="modal fade" id="architectureModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fa-brands fa-python me-2"></i> Backend Architecture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>This UI is powered by a Python Flask server and SQLite DB using RESTful APIs:</p>
+                <ul>
+                    <li><code>GET /api/students</code> - Fetch student list</li>
+                    <li><code>POST /api/students</code> - Add new student</li>
+                    <li><code>POST /api/attendance</code> - Save daily logs</li>
+                    <li><code>GET /api/reports</code> - Real-time percentage & shortage analysis</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentAttendanceData = {};
+    let doughnutChartInstance = null;
+    let barChartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDashboardTab();
+    });
+
+    async function logoutUser() {
+        try {
+            await fetch('/api/logout', { method: 'POST' });
+        } catch (e) {}
+        window.location.href = '/login';
+    }
+
+    function showTab(tabName, el) {
+        document.querySelectorAll('.tab-page').forEach(page => page.classList.add('d-none'));
+        document.getElementById(`tab-${tabName}`).classList.remove('d-none');
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+        el.classList.add('active');
+        
+        const titles = {
+            'dashboard': 'Dashboard Overview',
+            'students': 'Student Roster',
+            'mark-attendance': 'Mark Daily Attendance',
+            'reports': 'Reports & Analytics'
+        };
+        document.getElementById('section-heading').innerText = titles[tabName];
+
+        if(tabName === 'dashboard') loadDashboardTab();
+        if(tabName === 'mark-attendance') loadAttendanceSheet();
+        if(tabName === 'students') loadStudentsTab();
+        if(tabName === 'reports') loadReportsTab();
+    }
+
+    async function loadDashboardTab() {
+        const resStats = await fetch('/api/stats');
+        const dataStats = await resStats.json();
+        document.getElementById('stat-total').innerText = dataStats.total_students;
+        document.getElementById('stat-avg').innerText = dataStats.avg_percentage + '%';
+        document.getElementById('stat-low').innerText = dataStats.low_attendance_count;
+
+        const resReports = await fetch('/api/reports');
+        const reports = await resReports.json();
+
+        const alertContainer = document.getElementById('dashboard-alert-list');
+        alertContainer.innerHTML = '';
+        const lowStudents = reports.filter(r => r.shortage_alert);
+
+        if(lowStudents.length === 0) {
+            alertContainer.innerHTML = '<div class="alert alert-success mb-0"><i class="fa-solid fa-check-circle me-2"></i> All students have satisfactory attendance (&ge;75%)</div>';
+        } else {
+            lowStudents.forEach(s => {
+                alertContainer.innerHTML += `
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-start border-4 border-danger">
+                        <div>
+                            <strong class="text-dark">${s.name}</strong> (${s.roll_no})
+                            <div class="small text-muted">Department: ${s.department}</div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill fs-6">${s.percentage}%</span>
+                    </div>
+                `;
+            });
+        }
+
+        renderCharts(dataStats.avg_percentage, reports);
+    }
+
+    function renderCharts(avgPct, reports) {
+        const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+        if(doughnutChartInstance) doughnutChartInstance.destroy();
+        doughnutChartInstance = new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Present %', 'Absent %'],
+                datasets: [{
+                    data: [avgPct, (100 - avgPct).toFixed(1)],
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const deptCounts = {};
+        reports.forEach(r => {
+            if(!deptCounts[r.department]) deptCounts[r.department] = { totalPct: 0, count: 0 };
+            deptCounts[r.department].totalPct += r.percentage;
+            deptCounts[r.department].count += 1;
+        });
+
+        const labels = Object.keys(deptCounts);
+        const dataValues = labels.map(d => (deptCounts[d].totalPct / deptCounts[d].count).toFixed(1));
+
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        if(barChartInstance) barChartInstance.destroy();
+        barChartInstance = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Avg Attendance %',
+                    data: dataValues,
+                    backgroundColor: '#5856d6',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    }
+
+    async function loadAttendanceSheet() {
+        const res = await fetch('/api/reports');
+        const students = await res.json();
+        const tbody = document.getElementById('attendance-sheet-body');
+        
+        tbody.innerHTML = students.map(s => {
+            currentAttendanceData[s.student_id] = 'Present';
+            const pctColor = s.percentage < 75 ? 'text-danger fw-bold' : (s.percentage === 100 ? 'text-success fw-bold' : 'text-muted');
+            return `
+                <tr>
+                    <td><strong>${s.roll_no}</strong></td>
+                    <td class="fw-medium">${s.name}</td>
+                    <td><span class="dept-badge">${s.department}</span></td>
+                    <td class="${pctColor}">${s.percentage}%</td>
+                    <td>
+                        <div class="btn-group btn-status-group" role="group">
+                            <button type="button" class="btn btn-outline-success btn-status-present active" onclick="toggleStatus(${s.student_id}, 'Present', this)">Present</button>
+                            <button type="button" class="btn btn-outline-danger btn-status-absent" onclick="toggleStatus(${s.student_id}, 'Absent', this)">Absent</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function toggleStatus(studentId, status, btn) {
+        currentAttendanceData[studentId] = status;
+        const group = btn.closest('.btn-group');
+        group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function bulkSetStatus(status) {
+        for(let id in currentAttendanceData) {
+            currentAttendanceData[id] = status;
+        }
+        document.querySelectorAll('.btn-status-group').forEach(group => {
+            group.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            if(status === 'Present') {
+                group.querySelector('.btn-status-present').classList.add('active');
+            } else {
+                group.querySelector('.btn-status-absent').classList.add('active');
+            }
+        });
+    }
+
+    async function saveAttendance() {
+        const date = document.getElementById('att-date').value;
+        const subject = document.getElementById('att-subject').value;
+        const records = Object.keys(currentAttendanceData).map(id => ({
+            student_id: parseInt(id),
+            status: currentAttendanceData[id]
+        }));
+
+        const res = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ date, subject, records })
+        });
+
+        if(res.ok) alert('Attendance saved successfully to Database!');
+    }
+
+    async function loadStudentsTab() {
+        const res = await fetch('/api/students');
+        const data = await res.json();
+        document.getElementById('students-table-body').innerHTML = data.map(s => `
+            <tr>
+                <td><strong>${s.roll_no}</strong></td>
+                <td>${s.name}</td>
+                <td><span class="dept-badge">${s.department}</span></td>
+                <td>${s.email}</td>
+            </tr>
+        `).join('');
+    }
+
+    async function submitNewStudent(event) {
+        event.preventDefault();
+        const roll_no = document.getElementById('new-roll').value;
+        const name = document.getElementById('new-name').value;
+        const department = document.getElementById('new-dept').value;
+        const email = document.getElementById('new-email').value;
+
+        const res = await fetch('/api/students', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roll_no, name, department, email })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert('Student added successfully!');
+            document.getElementById('addStudentForm').reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addStudentModal'));
+            modal.hide();
+            loadStudentsTab();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    }
+
+    async function loadReportsTab() {
+        const res = await fetch('/api/reports');
+        const data = await res.json();
+        document.getElementById('reports-table-body').innerHTML = data.map(s => `
+            <tr>
+                <td><strong>${s.roll_no}</strong></td>
+                <td>${s.name}</td>
+                <td><span class="dept-badge">${s.department}</span></td>
+                <td>${s.present_count} / ${s.total_classes}</td>
+                <td class="${s.shortage_alert ? 'text-danger fw-bold' : 'text-success fw-bold'}">${s.percentage}%</td>
+                <td><span class="${s.shortage_alert ? 'badge bg-danger' : 'badge bg-success'}">${s.shortage_alert ? 'Shortage (<75%)' : 'Eligible'}</span></td>
+            </tr>
+        `).join('');
+    }
+</script>
+</body>
+</html>
